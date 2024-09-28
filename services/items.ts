@@ -1,41 +1,97 @@
+import backend from "@/lib/client-config";
+import type { ItemSchema } from "@/schemes/items";
+
 export interface Item {
   id: string;
-  name: string;
-  type: string;
-  brand: string;
-  price: number;
-  country: string;
-  volume: number;
-  alcoholVolume: number;
+  title: string;
+  type_id: string;
+  type_name: string;
+  brand_id: string;
+  brand_name: string;
+  price: string;
+  origin_country_code: string;
+  origin_country_name: string;
+  volume: string;
+  alcohol_volume: string;
   quantity: number;
   description: string;
-  imageUrl: string;
+  image_url: string;
 }
 
-// Mock in-memory storage for testing.
-let items: Item[] = [];
+interface ItemsResponse {
+  items: ItemResponse[];
+}
 
-// Auto-increment counter for identifiers.
-let sequence = 1000;
+interface ItemResponse {
+  item_id: string;
+  title: string;
+  image_url: string;
+  description: string;
+  type_id: string;
+  type_name: string;
+  price: {
+    amount: {
+      $numberDecimal: string;
+    };
+    currency: string;
+  };
+  volume: {
+    amount: {
+      $numberDecimal: string;
+    };
+    unit: string;
+  };
+  alcohol_volume: {
+    amount: {
+      $numberDecimal: string;
+    };
+    unit: string;
+  };
+  quantity: number;
+  origin_country_code: string;
+  origin_country_name: string;
+  brand_id: string;
+  brand_name: string;
+  updated_at: {
+    $date: string;
+  };
+  added_at: {
+    $date: string;
+  };
+}
 
 export async function getItems() {
-  return [...items];
+  const result = await backend.get("/items");
+  return (result as ItemsResponse).items.map(convert);
 }
 
-export async function getItem(id: string) {
-  return items.find((it) => it.id == id);
+export async function createItem(item: ItemSchema) {
+  await backend.post("/items", { json: { ...item, id: undefined } });
 }
 
-export async function createItem(item: Item) {
-  const result = { ...item, id: "SKU" + String(sequence++) };
-  items.push(result);
-  return result;
-}
-
-export async function updateItem(item: Item) {
-  items = items.map((it) => (it.id == item.id ? item : it));
+export async function updateItem(item: ItemSchema) {
+  await backend.put(`/item/${item.id}`, { json: { ...item, id: undefined } });
 }
 
 export async function deleteItem(id: string) {
-  items = items.filter((it) => it.id != id);
+  await backend.delete(`/item/${id}`);
+}
+
+function convert(response: ItemResponse): Item {
+  return {
+    id: response.item_id,
+    title: response.title,
+    type_id: response.type_id,
+    type_name: response.type_name,
+    brand_id: response.brand_id,
+    brand_name: response.brand_name,
+    price: response.price.amount.$numberDecimal,
+    origin_country_code: response.origin_country_code,
+    origin_country_name: response.origin_country_name,
+    volume: response.volume.amount.$numberDecimal,
+    alcohol_volume: response.alcohol_volume.amount.$numberDecimal,
+    quantity: response.quantity,
+    description: response.description,
+    image_url: response.image_url,
+  };
 }

@@ -2,19 +2,27 @@ import { useQuery } from "@tanstack/react-query";
 import { ComboBox, ComboBoxProps } from "@/components/shadcnui/combobox";
 import { getCountries } from "@/services/countries";
 
-export interface CountryComboBoxProps extends Omit<ComboBoxProps, "items"> {}
+export interface CountryComboBoxProps
+  extends Omit<ComboBoxProps, "items" | "loading" | "disabled"> {}
 
 export default function CountryComboBox(props: CountryComboBoxProps) {
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["countries"],
     queryFn: getCountries,
   });
 
   const items =
-    data?.map(({ emoji, name }) => ({
-      value: name,
+    data?.map(({ code, name, emoji }) => ({
+      value: code,
       label: `${emoji} ${name}`,
     })) ?? [];
 
-  return <ComboBox items={items} {...props} disabled={items.length == 0} />;
+  return (
+    <ComboBox
+      {...props}
+      items={items}
+      loading={isLoading}
+      disabled={items.length == 0}
+    />
+  );
 }

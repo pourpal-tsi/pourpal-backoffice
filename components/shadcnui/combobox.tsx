@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/shadcn";
 import { Button } from "@/components/shadcnui/button";
@@ -23,10 +23,12 @@ export interface ComboBoxProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   items: { value: string; label: string }[];
   selectedItem?: string;
-  onItemChange?: (item: string) => void;
+  onItemChange?: (value: string) => void;
   placeholderMessage?: string;
+  loadingMessage?: string;
   emptyMessage?: string;
   disabled?: boolean;
+  loading?: boolean;
 }
 
 const ComboBox = ({
@@ -34,8 +36,10 @@ const ComboBox = ({
   onItemChange,
   selectedItem,
   placeholderMessage = "Select...",
+  loadingMessage = "Loading...",
   emptyMessage = "No matches found",
   disabled,
+  loading,
 }: ComboBoxProps) => {
   const [open, setOpen] = React.useState(false);
 
@@ -43,15 +47,22 @@ const ComboBox = ({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          disabled={disabled}
+          disabled={disabled || loading}
           variant="outline"
           role="combobox"
           aria-expanded={open}
           className="flex w-full justify-between p-2 font-normal placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {selectedItem
-            ? items.find((item) => item.value === selectedItem)?.label
-            : placeholderMessage}
+          {loading ? (
+            <div className="flex items-center gap-3">
+              <Loader2 className=" size-4 animate-spin" />
+              <span>{loadingMessage}</span>
+            </div>
+          ) : selectedItem ? (
+            items.find((item) => item.value === selectedItem)?.label
+          ) : (
+            placeholderMessage
+          )}
           <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -67,13 +78,22 @@ const ComboBox = ({
               {items.map((item) => (
                 <CommandItem
                   key={item.value}
-                  value={item.value}
-                  onSelect={(currentValue) => {
-                    const changedValue =
-                      currentValue === selectedItem ? "" : currentValue;
-
-                    if (onItemChange) onItemChange(changedValue);
+                  value={item.label}
+                  onSelect={() => {
                     setOpen(false);
+
+                    if (!onItemChange) return;
+                    if (item.value == selectedItem) {
+                      onItemChange("");
+                      return;
+                    }
+
+                    const searchLabel = item.label.toLowerCase();
+                    const changedValue = items.find(
+                      ({ label }) => label.toLowerCase() == searchLabel,
+                    )?.value;
+
+                    onItemChange(changedValue ?? "");
                   }}
                 >
                   <Check

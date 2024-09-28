@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 
 import { Plus } from "lucide-react";
 
@@ -50,39 +49,26 @@ import CountryComboBox from "@/components/form/country-combobox";
 import BrandComboBox from "@/components/form/brand-combobox";
 import TypeComboBox from "@/components/form/type-combobox";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { createItem, deleteItem, getItems, updateItem } from "@/services/items";
+import {
+  createItem,
+  deleteItem,
+  getItems,
+  type Item,
+  updateItem,
+} from "@/services/items";
 import { useToast } from "@/hooks/use-toast";
-
-const itemSchema = z.object({
-  id: z.string(),
-  name: z.string().min(1, "Required"),
-  imageUrl: z.string().min(1, "Required").url({ message: "Invalid URL" }),
-  country: z.string().min(1, "Required"),
-  type: z.string().min(1, "Required"),
-  brand: z.string().min(1, "Required"),
-  price: z
-    .number({ invalid_type_error: "Must be a number" })
-    .positive("Must be positive"),
-  volume: z
-    .number({ invalid_type_error: "Must be a number" })
-    .positive("Must be positive"),
-  alcoholVolume: z
-    .number({ invalid_type_error: "Must be a number" })
-    .min(0, "Must be at least 0%")
-    .max(100, "Must be at most 100%"),
-  quantity: z
-    .number({ invalid_type_error: "Must be a number" })
-    .int("Must be a whole number")
-    .nonnegative("Must be non-negative"),
-  description: z.string(),
-});
-
-type ItemSchema = z.infer<typeof itemSchema>;
+import { Skeleton } from "@/components/shadcnui/skeleton";
+import { ItemSchema, itemSchema } from "@/schemes/items";
 
 export default function Page() {
   const { toast } = useToast();
 
-  const { data: items } = useQuery({
+  const {
+    data: items,
+    isLoading,
+    isSuccess,
+    isError,
+  } = useQuery({
     queryKey: ["items"],
     queryFn: getItems,
   });
@@ -106,60 +92,81 @@ export default function Page() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const [search, setSearch] = useState("");
-  const [selectedItem, setSelectedItem] = useState<ItemSchema | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
   const form = useForm<ItemSchema>({
     resolver: zodResolver(itemSchema),
     defaultValues: {
       id: "",
-      imageUrl: "",
-      name: "",
+      title: "",
+      type_id: "",
+      brand_id: "",
+      image_url: "",
       description: "",
-      type: "",
-      price: 0,
-      volume: 0,
-      alcoholVolume: 0,
+      origin_country_code: "",
       quantity: 0,
-      country: "",
-      brand: "",
+      alcohol_volume: "0",
+      volume: "0",
+      price: "0",
     },
   });
 
-  const handleSubmit = (item: ItemSchema) => {
+  const handleServiceError = (err: unknown) => {
+    console.error(err);
+    toast({
+      title: "Failed 💀",
+      description: `Something went wrong. Please, try again later.`,
+      variant: "destructive",
+    });
+  };
+
+  const handleSubmit = async (item: ItemSchema) => {
     setIsDetailOpen(false);
 
     if (selectedItem) {
-      updateMutation.mutate(item);
-      toast({
-        title: "Updated 🍷",
-        description: `Item '${item.id}' has been updated successfully.`,
-      });
+      try {
+        await updateMutation.mutateAsync(item);
+        toast({
+          title: "Updated 🍷",
+          description: `Item '${item.title}' has been updated successfully.`,
+        });
+      } catch (err) {
+        handleServiceError(err);
+      }
     } else {
-      createMutation.mutate(item);
-      toast({
-        title: "Created 🥳",
-        description: `Item '${item.name}' has been created successfully.`,
-      });
+      try {
+        await createMutation.mutateAsync(item);
+        toast({
+          title: "Created 🥳",
+          description: `Item '${item.title}' has been created successfully.`,
+        });
+      } catch (err) {
+        handleServiceError(err);
+      }
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selectedItem) return;
     setIsDetailOpen(false);
     setIsDeleteDialogOpen(false);
-    deleteMutation.mutate(selectedItem.id);
-    toast({
-      title: "Deleted 🗿",
-      description: `Item '${selectedItem.id}' has been deleted successfully.`,
-    });
+    try {
+      await deleteMutation.mutateAsync(selectedItem.id);
+      toast({
+        title: "Deleted 🗿",
+        description: `Item '${selectedItem.title}' has been deleted successfully.`,
+      });
+    } catch (err) {
+      handleServiceError(err);
+    }
   };
 
   const searchTerm = search.toLowerCase();
   const filteredItems =
-    items?.filter(({ id, name }) => {
+    items?.filter(({ id, title }) => {
       const matchesById = id.toLowerCase().includes(searchTerm);
-      const matchesByName = name.toLowerCase().includes(searchTerm);
-      return matchesById || matchesByName;
+      const matchesByTitle = title.toLowerCase().includes(searchTerm);
+      return matchesById || matchesByTitle;
     }) ?? [];
 
   return (
@@ -190,28 +197,56 @@ export default function Page() {
           <TableHeader>
             <TableRow>
               <TableHead>Identifier</TableHead>
-              <TableHead>Name</TableHead>
+              <TableHead>Title</TableHead>
               <TableHead>Brand</TableHead>
               <TableHead>Quantity</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredItems.map((item) => (
-              <TableRow
-                key={item.id}
-                onClick={() => {
-                  setSelectedItem(item);
-                  form.reset(item, { keepDefaultValues: true });
-                  setIsDetailOpen(true);
-                }}
-                className="cursor-pointer"
-              >
-                <TableCell>{item.id}</TableCell>
-                <TableCell>{item.name}</TableCell>
-                <TableCell>{item.brand}</TableCell>
-                <TableCell>{item.quantity}</TableCell>
+            {isLoading &&
+              [...Array(5)].map((_, key) => (
+                <TableRow key={key}>
+                  <TableCell>
+                    <Skeleton className="h-5 max-w-[200px] bg-zinc-200 dark:bg-zinc-700" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-5 max-w-[200px] bg-zinc-200 dark:bg-zinc-700" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-5 max-w-[200px] bg-zinc-200 dark:bg-zinc-700" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-5 max-w-[200px] bg-zinc-200 dark:bg-zinc-700" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            {isError && (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  className="text-center text-muted-foreground"
+                >
+                  Couldn&apos;t fetch items, please try again later. ☕
+                </TableCell>
               </TableRow>
-            ))}
+            )}
+            {isSuccess &&
+              filteredItems.map((item) => (
+                <TableRow
+                  key={item.id}
+                  onClick={() => {
+                    setSelectedItem(item);
+                    form.reset(item, { keepDefaultValues: true });
+                    setIsDetailOpen(true);
+                  }}
+                  className="cursor-pointer"
+                >
+                  <TableCell className="truncate">{item.id}</TableCell>
+                  <TableCell className="truncate">{item.title}</TableCell>
+                  <TableCell className="truncate">{item.brand_name}</TableCell>
+                  <TableCell className="truncate">{item.quantity}</TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </div>
@@ -250,7 +285,7 @@ export default function Page() {
               )}
               <FormField
                 control={form.control}
-                name="name"
+                name="title"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
@@ -263,7 +298,7 @@ export default function Page() {
               />
               <FormField
                 control={form.control}
-                name="imageUrl"
+                name="image_url"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Image URL</FormLabel>
@@ -277,7 +312,7 @@ export default function Page() {
               <div className="grid grid-cols-2 gap-2">
                 <FormField
                   control={form.control}
-                  name="type"
+                  name="type_id"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Type</FormLabel>
@@ -293,7 +328,7 @@ export default function Page() {
                 />
                 <FormField
                   control={form.control}
-                  name="country"
+                  name="origin_country_code"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Country</FormLabel>
@@ -314,15 +349,7 @@ export default function Page() {
                     <FormItem>
                       <FormLabel>Price (€ / pcs.)</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          {...form.register(field.name, {
-                            valueAsNumber: true,
-                          })}
-                          type="number"
-                          step="0.01"
-                          min="0"
-                        />
+                        <Input {...field} type="number" min="0" step="0.01" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -330,7 +357,7 @@ export default function Page() {
                 />
                 <FormField
                   control={form.control}
-                  name="brand"
+                  name="brand_id"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Brand</FormLabel>
@@ -351,15 +378,7 @@ export default function Page() {
                     <FormItem>
                       <FormLabel>Volume (L)</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          {...form.register(field.name, {
-                            valueAsNumber: true,
-                          })}
-                          type="number"
-                          step="0.01"
-                          min="0"
-                        />
+                        <Input {...field} type="number" min="0" step="0.1" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -367,20 +386,12 @@ export default function Page() {
                 />
                 <FormField
                   control={form.control}
-                  name="alcoholVolume"
+                  name="alcohol_volume"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Alcohol Volume (%)</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          {...form.register(field.name, {
-                            valueAsNumber: true,
-                          })}
-                          type="number"
-                          step="0.1"
-                          min="0"
-                        />
+                        <Input {...field} type="number" min="0" step="0.1" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
