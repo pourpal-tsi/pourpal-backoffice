@@ -3,6 +3,7 @@ import type { ItemSchema } from "@/schemes/items";
 
 export interface Item {
   id: string;
+  sku: string;
   title: string;
   type_id: string;
   type_name: string;
@@ -12,6 +13,7 @@ export interface Item {
   origin_country_code: string;
   origin_country_name: string;
   volume: string;
+  volume_unit: "ml" | "cl" | "dl" | "l";
   alcohol_volume: string;
   quantity: number;
   description: string;
@@ -25,6 +27,7 @@ interface ItemsResponse {
 interface ItemResponse {
   item_id: string;
   title: string;
+  sku: string;
   image_url: string;
   description: string;
   type_id: string;
@@ -39,7 +42,7 @@ interface ItemResponse {
     amount: {
       $numberDecimal: string;
     };
-    unit: string;
+    unit: "ml" | "cl" | "dl" | "l";
   };
   alcohol_volume: {
     amount: {
@@ -80,6 +83,7 @@ export async function deleteItem(id: string) {
 function convert(response: ItemResponse): Item {
   return {
     id: response.item_id,
+    sku: response.sku,
     title: response.title,
     type_id: response.type_id,
     type_name: response.type_name,
@@ -89,6 +93,7 @@ function convert(response: ItemResponse): Item {
     origin_country_code: response.origin_country_code,
     origin_country_name: response.origin_country_name,
     volume: response.volume.amount.$numberDecimal,
+    volume_unit: response.volume.unit,
     alcohol_volume: response.alcohol_volume.amount.$numberDecimal,
     quantity: response.quantity,
     description: response.description,

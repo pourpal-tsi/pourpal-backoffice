@@ -59,6 +59,13 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/shadcnui/skeleton";
 import { ItemSchema, itemSchema } from "@/schemes/items";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcnui/select";
 
 export default function Page() {
   const { toast } = useToast();
@@ -98,6 +105,7 @@ export default function Page() {
     resolver: zodResolver(itemSchema),
     defaultValues: {
       id: "",
+      sku: "",
       title: "",
       type_id: "",
       brand_id: "",
@@ -107,6 +115,7 @@ export default function Page() {
       quantity: 0,
       alcohol_volume: "0",
       volume: "0",
+      volume_unit: "ml",
       price: "0",
     },
   });
@@ -196,7 +205,7 @@ export default function Page() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Identifier</TableHead>
+              <TableHead>SKU</TableHead>
               <TableHead>Title</TableHead>
               <TableHead>Brand</TableHead>
               <TableHead>Quantity</TableHead>
@@ -241,7 +250,7 @@ export default function Page() {
                   }}
                   className="cursor-pointer"
                 >
-                  <TableCell className="truncate">{item.id}</TableCell>
+                  <TableCell className="truncate">{item.sku}</TableCell>
                   <TableCell className="truncate">{item.title}</TableCell>
                   <TableCell className="truncate">{item.brand_name}</TableCell>
                   <TableCell className="truncate">{item.quantity}</TableCell>
@@ -271,10 +280,10 @@ export default function Page() {
               {selectedItem && (
                 <FormField
                   control={form.control}
-                  name="id"
+                  name="sku"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Identifier</FormLabel>
+                      <FormLabel>SKU</FormLabel>
                       <FormControl>
                         <Input {...field} disabled />
                       </FormControl>
@@ -371,19 +380,47 @@ export default function Page() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="volume"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Volume (L)</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="number" min="0" step="0.1" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="flex flex-row gap-2">
+                  <FormField
+                    control={form.control}
+                    name="volume"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Volume</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="number" min="0" step="0.1" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="volume_unit"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Unit</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="w-[70px]">
+                              <SelectValue defaultValue="ml" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="ml">ml</SelectItem>
+                              <SelectItem value="cl">cl</SelectItem>
+                              <SelectItem value="dl">dl</SelectItem>
+                              <SelectItem value="l">l</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <FormField
                   control={form.control}
                   name="alcohol_volume"

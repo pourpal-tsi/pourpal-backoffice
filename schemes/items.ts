@@ -2,6 +2,7 @@ import * as z from "zod";
 
 export const itemSchema = z.object({
   id: z.string(),
+  sku: z.string(),
   title: z.string().min(1, "Required"),
   type_id: z.string().min(1, "Required"),
   brand_id: z.string().min(1, "Required"),
@@ -20,6 +21,7 @@ export const itemSchema = z.object({
     .refine((val) => above(parseFloat(val), 0), {
       message: "Must be above zero",
     }),
+  volume_unit: z.enum(["ml", "cl", "dl", "l"]),
   alcohol_volume: z
     .string()
     .regex(/^\s*\d+(\.\d+)?\s*$/, "Must be a number")
