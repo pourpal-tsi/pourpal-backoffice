@@ -1,6 +1,8 @@
 "use client";
 
+import useMediaQuery from "@/hooks/use-media-query";
 import { useCallback, useEffect, useState } from "react";
+import { Button } from "@/components/shadcnui/button";
 import { MoonIcon, SunIcon } from "lucide-react";
 import {
   DropdownMenu,
@@ -8,8 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/shadcnui/dropdown-menu";
-import { Button } from "@/components/shadcnui/button";
-import useMediaQuery from "@/hooks/use-media-query";
 
 export default function ThemeToggle({ className }: { className?: string }) {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
