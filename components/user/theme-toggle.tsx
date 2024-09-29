@@ -1,40 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MoonIcon, SunIcon } from "lucide-react";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/shadcnui/tooltip";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/shadcnui/dropdown-menu";
+import { Button } from "@/components/shadcnui/button";
+import useMediaQuery from "@/hooks/use-media-query";
 
 export default function ThemeToggle({ className }: { className?: string }) {
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
-  useEffect(() => {
+  const resetTheme = useCallback(() => {
     const storedTheme = localStorage.getItem("theme");
-    const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)");
     if (storedTheme == "dark" || (!storedTheme && prefersDarkMode)) {
-      setTheme("dark");
       document.body.classList.add("dark");
+      setTheme("dark");
+    } else {
+      document.body.classList.remove("dark");
+      setTheme("light");
     }
-  }, []);
+  }, [prefersDarkMode]);
 
-  const toggleTheme = () => {
-    document.body.classList.toggle("dark");
-    const toggledTheme = theme == "dark" ? "light" : "dark";
-    localStorage.setItem("theme", toggledTheme);
-    setTheme(toggledTheme);
+  useEffect(resetTheme, [resetTheme]);
+
+  const setLightTheme = () => {
+    localStorage.setItem("theme", "light");
+    document.body.classList.remove("dark");
+    setTheme("light");
+  };
+
+  const setDarkTheme = () => {
+    localStorage.setItem("theme", "dark");
+    document.body.classList.add("dark");
+    setTheme("dark");
+  };
+
+  const setSystemTheme = () => {
+    localStorage.removeItem("theme");
+    resetTheme();
   };
 
   return (
-    <Tooltip>
-      <TooltipTrigger className={className} onClick={toggleTheme}>
-        {theme == "dark" ? <MoonIcon /> : <SunIcon />}
-      </TooltipTrigger>
-      <TooltipContent>
-        {theme == "dark" ? "Enable light mode" : "Enable dark mode"}
-      </TooltipContent>
-    </Tooltip>
+    <DropdownMenu>
+      <DropdownMenuTrigger className={className} asChild>
+        <Button variant="ghost" size="icon">
+          {theme == "dark" ? <MoonIcon /> : <SunIcon />}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem onClick={setDarkTheme}>Dark</DropdownMenuItem>
+        <DropdownMenuItem onClick={setLightTheme}>Light</DropdownMenuItem>
+        <DropdownMenuItem onClick={setSystemTheme}>System</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
