@@ -86,9 +86,11 @@ import {
   type Item,
 } from "@/services/items";
 
+const pageSizeOptions = ["10", "20", "30", "40", "50"];
+
 const searchParamsSchema = z.object({
   search: z.string().optional(),
-  page_size: z.coerce.number().max(100).optional(),
+  page_size: z.enum(pageSizeOptions).transform((it) => parseInt(it)),
   page_number: z.coerce.number().optional(),
 });
 
@@ -317,8 +319,8 @@ export default function Page() {
                   <SelectValue placeholder="10" />
                 </SelectTrigger>
                 <SelectContent side="top">
-                  {[10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={String(pageSize)}>
+                  {pageSizeOptions.map((pageSize) => (
+                    <SelectItem key={pageSize} value={pageSize}>
                       {pageSize}
                     </SelectItem>
                   ))}
