@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Button } from "@/components/shadcnui/button";
-import { MoonIcon, SunIcon } from "lucide-react";
+import { ComputerIcon, LaptopIcon, MoonIcon, SunIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,9 +53,15 @@ export default function ThemeToggle({ className }: { className?: string }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem onClick={setDarkTheme}>Dark</DropdownMenuItem>
-        <DropdownMenuItem onClick={setLightTheme}>Light</DropdownMenuItem>
-        <DropdownMenuItem onClick={setSystemTheme}>System</DropdownMenuItem>
+        <DropdownMenuItem onClick={setDarkTheme}>
+          <MoonIcon className="mr-2 size-4" /> Dark
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={setLightTheme}>
+          <SunIcon className="mr-2 size-4" /> Light
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={setSystemTheme}>
+          <LaptopIcon className="mr-2 size-4" /> System
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
