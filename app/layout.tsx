@@ -37,9 +37,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <body>
         <RootProvider>
-          <div className="flex h-screen flex-col md:flex-row">
+          <div className="flex h-screen flex-col lg:flex-row">
             {/* PAGE SIDEBAR (ONLY FOR LARGE SCREENS) */}
-            <aside className="hidden w-full max-w-xs flex-col overflow-auto bg-white p-2 dark:bg-zinc-900 md:flex">
+            <aside className="hidden w-full max-w-xs shrink-0 flex-col overflow-auto bg-white p-2 dark:bg-zinc-900 lg:flex">
               <header className="border-b border-b-zinc-100 pb-2 dark:border-b-zinc-800">
                 <h4 className="p-2 text-xl">PourPal</h4>
               </header>
@@ -51,7 +51,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </aside>
 
             {/* PAGE HEADER (ONLY FOR SMALL SCREENS) */}
-            <div className="sticky left-0 top-0 flex items-center gap-5 border-b border-border bg-background p-4 md:hidden">
+            <div className="sticky left-0 top-0 z-50 flex items-center gap-2 border-b border-border bg-background p-4 lg:hidden">
               <NavButton />
               <h4 className="text-xl">PourPal</h4>
               <div className="ml-auto flex gap-5">
@@ -61,7 +61,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </div>
 
             {/* PAGE CONTENT */}
-            <main className="grow bg-zinc-50 p-6 dark:bg-zinc-950">
+            <main className="grow bg-zinc-50 p-6 dark:bg-zinc-950 lg:overflow-auto">
               {children}
             </main>
           </div>

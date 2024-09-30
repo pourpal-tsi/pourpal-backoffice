@@ -20,8 +20,19 @@ export interface Item {
   image_url: string;
 }
 
+interface PagingResponse {
+  count: number;
+  page_size: number;
+  page_number: number;
+  total_count: number;
+  total_pages: number;
+  first_page: boolean;
+  last_page: boolean;
+}
+
 interface ItemsResponse {
   items: ItemResponse[];
+  paging: PagingResponse;
 }
 
 interface ItemResponse {
@@ -63,9 +74,23 @@ interface ItemResponse {
   };
 }
 
-export async function getItems() {
-  const result = await backend.get("/items");
-  return (result as ItemsResponse).items.map(convert);
+export interface GetItemsQueryParams {
+  search?: string;
+  page_size?: number;
+  page_number?: number;
+}
+
+export async function getItems(props: GetItemsQueryParams = {}) {
+  const searchParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(props)) {
+    if (value) searchParams.set(key, value);
+  }
+
+  const result = (await backend.get(`/items?${searchParams}`)) as ItemsResponse;
+  return {
+    items: result.items.map(convert),
+    paging: result.paging,
+  };
 }
 
 export async function createItem(item: ItemSchema) {

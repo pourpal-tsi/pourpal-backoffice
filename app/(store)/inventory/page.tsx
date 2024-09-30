@@ -1,15 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
-import { Plus } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+
+import { useToast } from "@/hooks/use-toast";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
+
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
+  Plus,
+} from "lucide-react";
 
 import { Input } from "@/components/shadcnui/input";
 import { Button } from "@/components/shadcnui/button";
 import { Textarea } from "@/components/shadcnui/textarea";
+import { Skeleton } from "@/components/shadcnui/skeleton";
+
 import {
   Table,
   TableBody,
@@ -18,6 +33,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/shadcnui/table";
+
 import {
   Form,
   FormControl,
@@ -26,6 +42,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/shadcnui/form";
+
 import {
   Sheet,
   SheetContent,
@@ -33,6 +50,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/shadcnui/sheet";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,20 +63,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/shadcnui/alert-dialog";
 
-import CountryComboBox from "@/components/form/country-combobox";
-import BrandComboBox from "@/components/form/brand-combobox";
-import TypeComboBox from "@/components/form/type-combobox";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  createItem,
-  deleteItem,
-  getItems,
-  type Item,
-  updateItem,
-} from "@/services/items";
-import { useToast } from "@/hooks/use-toast";
-import { Skeleton } from "@/components/shadcnui/skeleton";
-import { ItemSchema, itemSchema } from "@/schemes/items";
 import {
   Select,
   SelectContent,
@@ -67,17 +71,63 @@ import {
   SelectValue,
 } from "@/components/shadcnui/select";
 
+import CountryComboBox from "@/components/form/country-combobox";
+import BrandComboBox from "@/components/form/brand-combobox";
+import TypeComboBox from "@/components/form/type-combobox";
+
+import { ItemSchema, itemSchema } from "@/schemes/items";
+import { createQueryString } from "@/lib/utils";
+
+import {
+  createItem,
+  deleteItem,
+  getItems,
+  updateItem,
+  type Item,
+} from "@/services/items";
+
+const searchParamsSchema = z.object({
+  search: z.string().optional(),
+  page_size: z.coerce.number().max(100).optional(),
+  page_number: z.coerce.number().optional(),
+});
+
 export default function Page() {
   const { toast } = useToast();
 
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const searchParams = useSearchParams();
+  const searchProps = searchParamsSchema.safeParse(
+    Object.fromEntries(searchParams),
+  ).data;
+
+  const [_search, setSearch] = useState(searchProps?.search ?? "");
+  const [search] = useDebouncedValue(_search, 500);
+
+  const [pageSize, setPageSize] = useState(searchProps?.page_size ?? 10);
+  const [pageNumber, setPageNumber] = useState(searchProps?.page_number ?? 1);
+
+  useEffect(() => {
+    const url = `${pathname}?${createQueryString({
+      search: search,
+      page_size: pageSize,
+      page_number: pageNumber,
+    })}`;
+
+    router.push(url);
+  }, [pathname, router, pageSize, pageNumber, search]);
+
   const {
-    data: items,
+    data: content,
     isLoading,
     isSuccess,
     isError,
   } = useQuery({
-    queryKey: ["items"],
-    queryFn: getItems,
+    queryKey: ["items", searchProps],
+    queryFn: () => getItems(searchProps ?? {}),
+    placeholderData: keepPreviousData,
   });
 
   const createMutation = useMutation({
@@ -98,7 +148,6 @@ export default function Page() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const [search, setSearch] = useState("");
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
   const form = useForm<ItemSchema>({
@@ -170,14 +219,6 @@ export default function Page() {
     }
   };
 
-  const searchTerm = search.toLowerCase();
-  const filteredItems =
-    items?.filter(({ id, title }) => {
-      const matchesById = id.toLowerCase().includes(searchTerm);
-      const matchesByTitle = title.toLowerCase().includes(searchTerm);
-      return matchesById || matchesByTitle;
-    }) ?? [];
-
   return (
     <>
       <div className="flex h-full flex-col">
@@ -186,7 +227,7 @@ export default function Page() {
           <Input
             type="text"
             placeholder="Search..."
-            value={search}
+            value={_search}
             onChange={(e) => setSearch(e.target.value)}
             className="mr-2"
           />
@@ -202,62 +243,132 @@ export default function Page() {
         </div>
 
         {/* INVENTORY TABLE */}
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>SKU</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Brand</TableHead>
-              <TableHead>Quantity</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading &&
-              [...Array(5)].map((_, key) => (
-                <TableRow key={key}>
-                  <TableCell>
-                    <Skeleton className="h-5 max-w-[200px] bg-zinc-200 dark:bg-zinc-700" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-5 max-w-[200px] bg-zinc-200 dark:bg-zinc-700" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-5 max-w-[200px] bg-zinc-200 dark:bg-zinc-700" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-5 max-w-[200px] bg-zinc-200 dark:bg-zinc-700" />
-                  </TableCell>
-                </TableRow>
-              ))}
-            {isError && (
+        <div className="overflow-auto rounded-md border">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell
-                  colSpan={4}
-                  className="text-center text-muted-foreground"
-                >
-                  Couldn&apos;t fetch items, please try again later. ☕
-                </TableCell>
+                <TableHead>SKU</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Brand</TableHead>
+                <TableHead>Quantity</TableHead>
               </TableRow>
-            )}
-            {isSuccess &&
-              filteredItems.map((item) => (
-                <TableRow
-                  key={item.id}
-                  onClick={() => {
-                    setSelectedItem(item);
-                    form.reset(item, { keepDefaultValues: true });
-                    setIsDetailOpen(true);
-                  }}
-                  className="cursor-pointer"
-                >
-                  <TableCell className="truncate">{item.sku}</TableCell>
-                  <TableCell className="truncate">{item.title}</TableCell>
-                  <TableCell className="truncate">{item.brand_name}</TableCell>
-                  <TableCell className="truncate">{item.quantity}</TableCell>
+            </TableHeader>
+            <TableBody>
+              {isLoading &&
+                [...Array(5)].map((_, key) => (
+                  <TableRow key={key}>
+                    <TableCell>
+                      <Skeleton className="h-5 max-w-[200px] bg-zinc-200 dark:bg-zinc-700" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 max-w-[200px] bg-zinc-200 dark:bg-zinc-700" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 max-w-[200px] bg-zinc-200 dark:bg-zinc-700" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 max-w-[200px] bg-zinc-200 dark:bg-zinc-700" />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              {isError && (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    className="text-center text-muted-foreground"
+                  >
+                    Couldn&apos;t fetch items, please try again later. ☕
+                  </TableCell>
                 </TableRow>
-              ))}
-          </TableBody>
-        </Table>
+              )}
+              {isSuccess &&
+                content?.items?.map((item) => (
+                  <TableRow
+                    key={item.id}
+                    onClick={() => {
+                      setSelectedItem(item);
+                      form.reset(item, { keepDefaultValues: true });
+                      setIsDetailOpen(true);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <TableCell className="truncate">{item.sku}</TableCell>
+                    <TableCell className="truncate">{item.title}</TableCell>
+                    <TableCell className="truncate">
+                      {item.brand_name}
+                    </TableCell>
+                    <TableCell className="truncate">{item.quantity}</TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex w-full flex-col-reverse items-center justify-end gap-4 py-3 sm:flex-row sm:gap-10">
+          <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
+            <div className="flex items-center space-x-2">
+              <p className="whitespace-nowrap text-sm font-medium">
+                Rows per page
+              </p>
+              <Select
+                value={String(pageSize)}
+                onValueChange={(value) => setPageSize(parseInt(value))}
+              >
+                <SelectTrigger className="h-8 w-[4.5rem]">
+                  <SelectValue placeholder="10" />
+                </SelectTrigger>
+                <SelectContent side="top">
+                  {[10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={String(pageSize)}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex items-center justify-center text-sm font-medium">
+            Page {content?.paging?.page_number} of{" "}
+            {content?.paging?.total_pages}
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-8"
+              disabled={content?.paging?.first_page}
+              onClick={() => setPageNumber(1)}
+            >
+              <ChevronsLeftIcon className="size-4" aria-hidden="true" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-8"
+              disabled={content?.paging?.first_page}
+              onClick={() => setPageNumber((it) => it - 1)}
+            >
+              <ChevronLeftIcon className="size-4" aria-hidden="true" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-8"
+              disabled={content?.paging?.last_page}
+              onClick={() => setPageNumber((it) => it + 1)}
+            >
+              <ChevronRightIcon className="size-4" aria-hidden="true" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-8"
+              onClick={() => setPageNumber(content?.paging?.total_pages ?? 1)}
+              disabled={content?.paging?.last_page}
+            >
+              <ChevronsRightIcon className="size-4" aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* ITEM SIDEBAR */}
@@ -318,7 +429,7 @@ export default function Page() {
                   </FormItem>
                 )}
               />
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid gap-2 sm:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="type_id"
@@ -380,53 +491,14 @@ export default function Page() {
                     </FormItem>
                   )}
                 />
-                <div className="flex flex-row gap-2">
-                  <FormField
-                    control={form.control}
-                    name="volume"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Volume</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="number" min="0" step="0.1" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="volume_unit"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Unit</FormLabel>
-                        <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <SelectTrigger className="w-[70px]">
-                              <SelectValue defaultValue="ml" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="ml">ml</SelectItem>
-                              <SelectItem value="cl">cl</SelectItem>
-                              <SelectItem value="dl">dl</SelectItem>
-                              <SelectItem value="l">l</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+              </div>
+              <div className="flex flex-row gap-2">
                 <FormField
                   control={form.control}
-                  name="alcohol_volume"
+                  name="volume"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Alcohol Volume (%)</FormLabel>
+                    <FormItem className="grow">
+                      <FormLabel>Volume</FormLabel>
                       <FormControl>
                         <Input {...field} type="number" min="0" step="0.1" />
                       </FormControl>
@@ -434,7 +506,46 @@ export default function Page() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="volume_unit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Unit</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger className="w-[70px]">
+                            <SelectValue defaultValue="ml" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ml">ml</SelectItem>
+                            <SelectItem value="cl">cl</SelectItem>
+                            <SelectItem value="dl">dl</SelectItem>
+                            <SelectItem value="l">l</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
+              <FormField
+                control={form.control}
+                name="alcohol_volume"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Alcohol Volume (%)</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="number" min="0" step="0.1" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="quantity"

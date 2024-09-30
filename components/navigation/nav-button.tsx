@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import NavMenu from "@/components/navigation/nav-menu";
-import useMediaQuery from "@/hooks/use-media-query";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { MenuIcon } from "lucide-react";
 import {
   Sheet,
@@ -12,9 +11,11 @@ import {
   SheetTrigger,
 } from "@/components/shadcnui/sheet";
 
+import NavMenu from "@/components/navigation/nav-menu";
+
 export default function NavButton() {
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 1024px)");
 
   useEffect(() => {
     if (!isMobile) setIsNavbarOpen(false);
@@ -27,7 +28,7 @@ export default function NavButton() {
       </SheetTrigger>
       <SheetTitle />
       <SheetDescription />
-      <SheetContent side="left" className="w-full overflow-auto md:hidden">
+      <SheetContent side="left" className="w-full overflow-auto lg:hidden">
         <NavMenu onNavigate={() => setIsNavbarOpen(false)} />
       </SheetContent>
     </Sheet>

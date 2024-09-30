@@ -1,7 +1,7 @@
 "use client";
 
-import useMediaQuery from "@/hooks/use-media-query";
 import { useCallback, useEffect, useState } from "react";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { Button } from "@/components/shadcnui/button";
 import { MoonIcon, SunIcon } from "lucide-react";
 import {
