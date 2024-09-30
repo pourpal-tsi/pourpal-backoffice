@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Button } from "@/components/shadcnui/button";
-import { ComputerIcon, LaptopIcon, MoonIcon, SunIcon } from "lucide-react";
+import { LaptopIcon, MoonIcon, SunIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
