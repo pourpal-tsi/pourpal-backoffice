@@ -86,7 +86,7 @@ import {
   type Item,
 } from "@/services/items";
 
-const pageSizeOptions = ["10", "20", "30", "40", "50"];
+const pageSizeOptions = ["10", "20", "30", "40", "50"] as const;
 
 const searchParamsSchema = z.object({
   search: z.string().optional(),
@@ -118,7 +118,7 @@ export default function Page() {
       page_number: pageNumber,
     })}`;
 
-    router.push(url);
+    router.push(url, { scroll: false });
   }, [pathname, router, pageSize, pageNumber, search]);
 
   const {
@@ -246,7 +246,7 @@ export default function Page() {
 
         {/* INVENTORY TABLE */}
         <div className="overflow-auto rounded-md border">
-          <Table>
+          <Table className="table-fixed">
             <TableHeader>
               <TableRow>
                 <TableHead>SKU</TableHead>
