@@ -113,6 +113,10 @@ export default function Page() {
   const [pageNumber, setPageNumber] = useState(searchProps?.page_number ?? 1);
 
   useEffect(() => {
+    setPageNumber(1);
+  }, [search, pageSize]);
+
+  useEffect(() => {
     const url = `${pathname}?${createQueryString({
       search: search,
       page_size: pageSize,
@@ -132,6 +136,9 @@ export default function Page() {
     queryFn: () => getItems(searchProps ?? {}),
     placeholderData: keepPreviousData,
   });
+
+  const paging = content?.paging;
+  const hasPages = paging && paging.total_pages > 0;
 
   const createMutation = useMutation({
     mutationKey: ["items"],
@@ -311,72 +318,73 @@ export default function Page() {
             </TableBody>
           </Table>
         </div>
-        <div className="flex w-full flex-col-reverse items-center justify-end gap-4 py-3 sm:flex-row sm:gap-10">
-          <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
+        {hasPages && (
+          <div className="flex w-full flex-col-reverse items-center justify-end gap-4 py-3 sm:flex-row sm:gap-10">
+            <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
+              <div className="flex items-center space-x-2">
+                <p className="whitespace-nowrap text-sm font-medium">
+                  Rows per page
+                </p>
+                <Select
+                  value={String(pageSize)}
+                  onValueChange={(value) => setPageSize(parseInt(value))}
+                >
+                  <SelectTrigger className="h-8 w-[4.5rem]">
+                    <SelectValue placeholder="10" />
+                  </SelectTrigger>
+                  <SelectContent side="top">
+                    {pageSizeOptions.map((pageSize) => (
+                      <SelectItem key={pageSize} value={pageSize}>
+                        {pageSize}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="flex items-center justify-center text-sm font-medium">
+              Page {paging?.page_number} of {paging?.total_pages}
+            </div>
             <div className="flex items-center space-x-2">
-              <p className="whitespace-nowrap text-sm font-medium">
-                Rows per page
-              </p>
-              <Select
-                value={String(pageSize)}
-                onValueChange={(value) => setPageSize(parseInt(value))}
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-8"
+                disabled={paging?.first_page}
+                onClick={() => setPageNumber(1)}
               >
-                <SelectTrigger className="h-8 w-[4.5rem]">
-                  <SelectValue placeholder="10" />
-                </SelectTrigger>
-                <SelectContent side="top">
-                  {pageSizeOptions.map((pageSize) => (
-                    <SelectItem key={pageSize} value={pageSize}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <ChevronsLeftIcon className="size-4" aria-hidden="true" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-8"
+                disabled={paging?.first_page}
+                onClick={() => setPageNumber((it) => it - 1)}
+              >
+                <ChevronLeftIcon className="size-4" aria-hidden="true" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-8"
+                disabled={paging?.last_page}
+                onClick={() => setPageNumber((it) => it + 1)}
+              >
+                <ChevronRightIcon className="size-4" aria-hidden="true" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-8"
+                onClick={() => setPageNumber(paging?.total_pages ?? 1)}
+                disabled={paging?.last_page}
+              >
+                <ChevronsRightIcon className="size-4" aria-hidden="true" />
+              </Button>
             </div>
           </div>
-          <div className="flex items-center justify-center text-sm font-medium">
-            Page {content?.paging?.page_number} of{" "}
-            {content?.paging?.total_pages}
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-8"
-              disabled={content?.paging?.first_page}
-              onClick={() => setPageNumber(1)}
-            >
-              <ChevronsLeftIcon className="size-4" aria-hidden="true" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-8"
-              disabled={content?.paging?.first_page}
-              onClick={() => setPageNumber((it) => it - 1)}
-            >
-              <ChevronLeftIcon className="size-4" aria-hidden="true" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-8"
-              disabled={content?.paging?.last_page}
-              onClick={() => setPageNumber((it) => it + 1)}
-            >
-              <ChevronRightIcon className="size-4" aria-hidden="true" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-8"
-              onClick={() => setPageNumber(content?.paging?.total_pages ?? 1)}
-              disabled={content?.paging?.last_page}
-            >
-              <ChevronsRightIcon className="size-4" aria-hidden="true" />
-            </Button>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* ITEM SIDEBAR */}
