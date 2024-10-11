@@ -16,6 +16,7 @@
     "@typescript-eslint/no-unused-vars": "error",
     "@typescript-eslint/no-empty-object-type": "off",
     "@typescript-eslint/no-require-imports": "off",
+    "@next/next/no-img-element": "off",
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off"
   }

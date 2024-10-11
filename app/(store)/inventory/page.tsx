@@ -83,8 +83,8 @@ import {
   createItem,
   deleteItem,
   getItems,
-  updateItem,
   type Item,
+  updateItem,
 } from "@/services/items";
 
 const pageSizeOptions = ["10", "20", "30", "40", "50"] as const;
@@ -178,6 +178,8 @@ export default function Page() {
       price: "0",
     },
   });
+
+  const imageUrl = form.watch("image_url");
 
   const handleServiceError = (err: unknown) => {
     console.error(err);
@@ -445,6 +447,15 @@ export default function Page() {
                   </FormItem>
                 )}
               />
+              {imageUrl && (
+                <div className="flex w-full flex-row items-center justify-center rounded-md border bg-white py-3">
+                  <img
+                    src={imageUrl}
+                    alt="Couldn't load the preview"
+                    className="max-h-[200px] text-sm dark:text-secondary"
+                  />
+                </div>
+              )}
               <div className="grid gap-2 sm:grid-cols-2">
                 <FormField
                   control={form.control}
