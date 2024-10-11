@@ -18,6 +18,7 @@ import {
   ChevronsLeftIcon,
   ChevronsRightIcon,
   Plus,
+  SearchIcon,
 } from "lucide-react";
 
 import { Input } from "@/components/shadcnui/input";
@@ -226,13 +227,18 @@ export default function Page() {
       <div className="flex h-full flex-col">
         {/* TOOLBAR */}
         <div className="mb-4 flex">
-          <Input
-            type="text"
-            placeholder="Search..."
-            value={_search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="mr-2"
-          />
+          <div className="relative mr-2 w-full">
+            <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <SearchIcon className="size-5 text-gray-400" />
+            </span>
+            <Input
+              type="search"
+              placeholder="Search..."
+              value={_search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10"
+            />
+          </div>
           <Button
             onClick={() => {
               setSelectedItem(null);
