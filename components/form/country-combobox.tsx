@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { ComboBox, ComboBoxProps } from "@/components/shadcnui/combobox";
-import { getCountries } from "@/services/countries";
+import { getCountries } from "@/services/item-countries";
 
 export interface CountryComboBoxProps
   extends Omit<ComboBoxProps, "items" | "loading" | "disabled"> {}

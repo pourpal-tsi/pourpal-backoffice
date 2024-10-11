@@ -12,6 +12,6 @@ interface CountryResponse {
 }
 
 export async function getCountries() {
-  const result = await backend.get("/items/countries");
+  const result = await backend.get("/item-countries");
   return (result as CountryResponse).countries;
 }

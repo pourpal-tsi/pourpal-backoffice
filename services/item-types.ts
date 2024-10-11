@@ -10,6 +10,6 @@ interface ItemTypesResponse {
 }
 
 export async function getItemTypes() {
-  const result = await backend.get("/items/types");
+  const result = await backend.get("/item-types");
   return (result as ItemTypesResponse).types;
 }
