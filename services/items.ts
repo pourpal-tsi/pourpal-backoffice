@@ -1,4 +1,4 @@
-import backend from "@/lib/client-config";
+import api from "@/config/api";
 import type { ItemSchema } from "@/schemes/items";
 
 export interface Item {
@@ -86,7 +86,7 @@ export async function getItems(props: GetItemsQueryParams = {}) {
     if (value) searchParams.set(key, value);
   }
 
-  const result = (await backend.get(`/items?${searchParams}`)) as ItemsResponse;
+  const result = (await api.get(`/items?${searchParams}`)) as ItemsResponse;
   return {
     items: result.items.map(convert),
     paging: result.paging,
@@ -94,15 +94,15 @@ export async function getItems(props: GetItemsQueryParams = {}) {
 }
 
 export async function createItem(item: ItemSchema) {
-  await backend.post("/items", { json: { ...item, id: undefined } });
+  await api.post("/items", { body: { ...item, id: undefined } });
 }
 
 export async function updateItem(item: ItemSchema) {
-  await backend.put(`/item/${item.id}`, { json: { ...item, id: undefined } });
+  await api.put(`/item/${item.id}`, { body: { ...item, id: undefined } });
 }
 
 export async function deleteItem(id: string) {
-  await backend.delete(`/item/${id}`);
+  await api.delete(`/item/${id}`);
 }
 
 function convert(response: ItemResponse): Item {

@@ -1,4 +1,4 @@
-import backend from "@/lib/client-config";
+import api from "@/config/api";
 
 export interface Country {
   code: string;
@@ -12,6 +12,6 @@ interface CountryResponse {
 }
 
 export async function getCountries() {
-  const result = await backend.get("/item-countries");
+  const result = await api.get("/item-countries");
   return (result as CountryResponse).countries;
 }

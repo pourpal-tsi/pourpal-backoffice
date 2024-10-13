@@ -1,4 +1,4 @@
-import backend from "@/lib/client-config";
+import api from "@/config/api";
 
 export interface ItemBrand {
   brand_id: string;
@@ -10,6 +10,6 @@ interface ItemBrandsResponse {
 }
 
 export async function getItemBrands() {
-  const result = await backend.get("/item-brands");
+  const result = await api.get("/item-brands");
   return (result as ItemBrandsResponse).brands;
 }

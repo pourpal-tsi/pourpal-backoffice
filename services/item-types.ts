@@ -1,4 +1,4 @@
-import backend from "@/lib/client-config";
+import api from "@/config/api";
 
 export interface ItemType {
   type_id: string;
@@ -10,6 +10,6 @@ interface ItemTypesResponse {
 }
 
 export async function getItemTypes() {
-  const result = await backend.get("/item-types");
+  const result = await api.get("/item-types");
   return (result as ItemTypesResponse).types;
 }
