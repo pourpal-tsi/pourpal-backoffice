@@ -75,9 +75,9 @@ interface ItemResponse {
 }
 
 export interface GetItemsQueryParams {
-  search?: string;
-  page_size?: number;
-  page_number?: number;
+  search?: string | null;
+  page_size?: number | null;
+  page_number?: number | null;
 }
 
 export async function getItems(props: GetItemsQueryParams = {}) {

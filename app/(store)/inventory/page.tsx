@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 
 import { useToast } from "@/hooks/use-toast";
@@ -77,7 +75,6 @@ import BrandComboBox from "@/components/form/brand-combobox";
 import TypeComboBox from "@/components/form/type-combobox";
 
 import { ItemSchema, itemSchema } from "@/schemes/items";
-import { createQueryString } from "@/lib/utils";
 
 import {
   createItem,
@@ -86,45 +83,28 @@ import {
   type Item,
   updateItem,
 } from "@/services/items";
+import { parseAsInteger, parseAsNumberLiteral, useQueryState } from "nuqs";
 
-const pageSizeOptions = ["10", "20", "30", "40", "50"] as const;
-
-const searchParamsSchema = z.object({
-  search: z.string().optional(),
-  page_size: z.enum(pageSizeOptions).transform((it) => parseInt(it)),
-  page_number: z.coerce.number().optional(),
-});
+const pageSizeOptions = [10, 20, 30, 40, 50] as const;
 
 export default function Page() {
   const { toast } = useToast();
 
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const searchParams = useSearchParams();
-  const searchProps = searchParamsSchema.safeParse(
-    Object.fromEntries(searchParams),
-  ).data;
-
-  const [_search, setSearch] = useState(searchProps?.search ?? "");
+  const [_search, setSearch] = useQueryState("search");
   const [search] = useDebouncedValue(_search, 500);
 
-  const [pageSize, setPageSize] = useState(searchProps?.page_size ?? 10);
-  const [pageNumber, setPageNumber] = useState(searchProps?.page_number ?? 1);
+  const [pageSize, setPageSize] = useQueryState(
+    "page_size",
+    parseAsNumberLiteral(pageSizeOptions).withDefault(10),
+  );
+  const [pageNumber, setPageNumber] = useQueryState(
+    "page_number",
+    parseAsInteger.withDefault(1),
+  );
 
   useEffect(() => {
     setPageNumber(1);
-  }, [search, pageSize]);
-
-  useEffect(() => {
-    const url = `${pathname}?${createQueryString({
-      search: search,
-      page_size: pageSize,
-      page_number: pageNumber,
-    })}`;
-
-    router.push(url, { scroll: false });
-  }, [pathname, router, pageSize, pageNumber, search]);
+  }, [setPageNumber, search, pageSize]);
 
   const {
     data: content,
@@ -132,8 +112,9 @@ export default function Page() {
     isSuccess,
     isError,
   } = useQuery({
-    queryKey: ["items", searchProps],
-    queryFn: () => getItems(searchProps ?? {}),
+    queryKey: ["items", search, pageSize, pageNumber],
+    queryFn: () =>
+      getItems({ search, page_size: pageSize, page_number: pageNumber }),
     placeholderData: keepPreviousData,
   });
 
@@ -243,7 +224,7 @@ export default function Page() {
             <Input
               type="search"
               placeholder="Search..."
-              value={_search}
+              value={_search ?? ""}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10"
             />
@@ -329,14 +310,18 @@ export default function Page() {
                 </p>
                 <Select
                   value={String(pageSize)}
-                  onValueChange={(value) => setPageSize(parseInt(value))}
+                  onValueChange={(value) =>
+                    setPageSize(
+                      parseInt(value) as (typeof pageSizeOptions)[number],
+                    )
+                  }
                 >
                   <SelectTrigger className="h-8 w-[4.5rem]">
                     <SelectValue placeholder="10" />
                   </SelectTrigger>
                   <SelectContent side="top">
                     {pageSizeOptions.map((pageSize) => (
-                      <SelectItem key={pageSize} value={pageSize}>
+                      <SelectItem key={pageSize} value={pageSize.toString()}>
                         {pageSize}
                       </SelectItem>
                     ))}
