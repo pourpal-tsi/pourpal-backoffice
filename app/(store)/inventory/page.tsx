@@ -13,10 +13,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 import {
+  ChevronFirstIcon,
+  ChevronLastIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
   Plus,
   SearchIcon,
 } from "lucide-react";
@@ -355,7 +355,7 @@ export default function Page() {
                 disabled={paging?.first_page}
                 onClick={() => setPageNumber(1)}
               >
-                <ChevronsLeftIcon className="size-4" aria-hidden="true" />
+                <ChevronFirstIcon className="size-4" aria-hidden="true" />
               </Button>
               <Button
                 variant="outline"
@@ -382,7 +382,7 @@ export default function Page() {
                 onClick={() => setPageNumber(paging?.total_pages ?? 1)}
                 disabled={paging?.last_page}
               >
-                <ChevronsRightIcon className="size-4" aria-hidden="true" />
+                <ChevronLastIcon className="size-4" aria-hidden="true" />
               </Button>
             </div>
           </div>
