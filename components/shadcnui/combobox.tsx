@@ -51,7 +51,10 @@ const ComboBox = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="flex w-full justify-between p-2 font-normal placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+          className={cn(
+            "flex w-full justify-between p-2 font-normal disabled:cursor-not-allowed disabled:opacity-50",
+            !selectedItem && "text-muted-foreground",
+          )}
         >
           {loading ? (
             <div className="flex items-center gap-3">
