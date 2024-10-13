@@ -97,6 +97,6 @@ export class RestClient {
 
     const queryEntries = Object.fromEntries(filteredParams);
     const queryString = new URLSearchParams(queryEntries).toString();
-    return endpointUrl + queryString;
+    return `${endpointUrl}?${queryString}`;
   }
 }

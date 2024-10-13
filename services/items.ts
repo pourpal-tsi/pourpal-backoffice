@@ -1,5 +1,6 @@
 import api from "@/config/api";
 import type { ItemSchema } from "@/schemes/items";
+import { RestClientParams } from "@/lib/api";
 
 export interface Item {
   id: string;
@@ -81,12 +82,10 @@ export interface GetItemsQueryParams {
 }
 
 export async function getItems(props: GetItemsQueryParams = {}) {
-  const searchParams = new URLSearchParams();
-  for (const [key, value] of Object.entries(props)) {
-    if (value) searchParams.set(key, value);
-  }
+  const result = (await api.get(`/items`, {
+    params: props as RestClientParams,
+  })) as ItemsResponse;
 
-  const result = (await api.get(`/items?${searchParams}`)) as ItemsResponse;
   return {
     items: result.items.map(convert),
     paging: result.paging,
