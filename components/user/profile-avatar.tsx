@@ -1,11 +1,7 @@
 "use client";
 
 import { LogOut, Settings, User } from "lucide-react";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/shadcnui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/shadcnui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 
 export default function ProfileAvatar() {
   return (

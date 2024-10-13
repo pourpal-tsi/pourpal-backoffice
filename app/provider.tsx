@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import { TooltipProvider } from "@/components/shadcnui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import {
   QueryClientProvider,
   QueryClient,

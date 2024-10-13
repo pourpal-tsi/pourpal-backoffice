@@ -19,10 +19,10 @@ import {
   SearchIcon,
 } from "lucide-react";
 
-import { Input } from "@/components/shadcnui/input";
-import { Button } from "@/components/shadcnui/button";
-import { Textarea } from "@/components/shadcnui/textarea";
-import { Skeleton } from "@/components/shadcnui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import {
   Table,
@@ -31,7 +31,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/shadcnui/table";
+} from "@/components/ui/table";
 
 import {
   Form,
@@ -40,7 +40,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/shadcnui/form";
+} from "@/components/ui/form";
 
 import {
   Sheet,
@@ -48,7 +48,7 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@/components/shadcnui/sheet";
+} from "@/components/ui/sheet";
 
 import {
   AlertDialog,
@@ -60,7 +60,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/shadcnui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 
 import {
   Select,
@@ -68,7 +68,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/shadcnui/select";
+} from "@/components/ui/select";
 
 import CountryComboBox from "@/components/form/country-combobox";
 import BrandComboBox from "@/components/form/brand-combobox";

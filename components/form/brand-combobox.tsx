@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ComboBox, ComboBoxProps } from "@/components/shadcnui/combobox";
+import { ComboBox, ComboBoxProps } from "@/components/ui/combobox";
 import { getItemBrands } from "@/services/item-brands";
 
 export interface BrandComboBoxProps

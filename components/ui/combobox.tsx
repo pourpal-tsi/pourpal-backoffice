@@ -3,13 +3,13 @@
 import * as React from "react";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 
-import { cn } from "@/lib/shadcn";
-import { Button } from "@/components/shadcnui/button";
+import { cn } from "@/lib/cn";
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/shadcnui/popover";
+} from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -17,7 +17,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/shadcnui/command";
+} from "@/components/ui/command";
 
 export interface ComboBoxProps
   extends React.InputHTMLAttributes<HTMLInputElement> {

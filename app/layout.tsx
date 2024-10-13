@@ -1,28 +1,16 @@
 import React, { ReactNode } from "react";
 import type { Metadata } from "next";
 
-import RootProvider from "@/app/providers";
-import { Toaster } from "@/components/shadcnui/toaster";
+import RootProvider from "@/app/provider";
+import { Toaster } from "@/components/ui/toaster";
 
 import ProfileAvatar from "@/components/user/profile-avatar";
 import ThemeToggle from "@/components/user/theme-toggle";
 import NavButton from "@/components/navigation/nav-button";
 import NavMenu from "@/components/navigation/nav-menu";
 
-import localFont from "next/font/local";
+import { fontMono, fontSans } from "@/lib/fonts";
 import "./globals.css";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
 
 export const metadata: Metadata = {
   title: "PourPal - Backoffice",
@@ -33,7 +21,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`${fontSans.variable} ${fontMono.variable} antialiased`}
     >
       <body>
         <RootProvider>

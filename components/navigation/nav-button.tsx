@@ -9,7 +9,7 @@ import {
   SheetDescription,
   SheetTitle,
   SheetTrigger,
-} from "@/components/shadcnui/sheet";
+} from "@/components/ui/sheet";
 
 import NavMenu from "@/components/navigation/nav-menu";
 
