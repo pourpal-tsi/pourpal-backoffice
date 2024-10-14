@@ -1,18 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
 import { ComboBox, ComboBoxProps } from "@/components/ui/combobox";
-import { getItemTypes } from "@/services/item-types";
+import { useItemTypes } from "@/features/item-types/api/get";
 
 export interface TypeComboBoxProps
   extends Omit<ComboBoxProps, "items" | "loading" | "disabled"> {}
 
 export default function TypeComboBox(props: TypeComboBoxProps) {
-  const { data, isLoading } = useQuery({
-    queryKey: ["types"],
-    queryFn: getItemTypes,
-  });
+  const { data, isLoading } = useItemTypes();
 
   const items =
-    data?.map(({ type_id, type }) => ({
+    data?.types?.map(({ type_id, type }) => ({
       value: type_id,
       label: type,
     })) ?? [];

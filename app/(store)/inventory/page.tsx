@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData } from "@tanstack/react-query";
 
 import { useToast } from "@/hooks/use-toast";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -74,16 +74,13 @@ import CountryComboBox from "@/components/form/country-combobox";
 import BrandComboBox from "@/components/form/brand-combobox";
 import TypeComboBox from "@/components/form/type-combobox";
 
-import { ItemSchema, itemSchema } from "@/schemes/items";
-
-import {
-  createItem,
-  deleteItem,
-  getItems,
-  type Item,
-  updateItem,
-} from "@/services/items";
 import { parseAsInteger, parseAsNumberLiteral, useQueryState } from "nuqs";
+import { useCreateItem } from "@/features/items/api/create";
+import { useUpdateItem } from "@/features/items/api/update";
+import { useDeleteItem } from "@/features/items/api/delete";
+import { useItems } from "@/features/items/api/get";
+import { ItemInput, itemSchema } from "@/features/items/types/input";
+import { Item } from "@/features/items/types/item";
 
 const pageSizeOptions = [10, 20, 30, 40, 50] as const;
 
@@ -111,40 +108,31 @@ export default function Page() {
     isLoading,
     isSuccess,
     isError,
-  } = useQuery({
-    queryKey: ["items", search, pageSize, pageNumber],
-    queryFn: () =>
-      getItems({ search, page_size: pageSize, page_number: pageNumber }),
-    placeholderData: keepPreviousData,
+  } = useItems({
+    search,
+    pageSize,
+    pageNumber,
+    queryConfig: {
+      placeholderData: keepPreviousData,
+    },
   });
 
   const paging = content?.paging;
   const hasPages = paging && paging.total_pages > 0;
 
-  const createMutation = useMutation({
-    mutationKey: ["items"],
-    mutationFn: createItem,
-  });
-
-  const updateMutation = useMutation({
-    mutationKey: ["items"],
-    mutationFn: updateItem,
-  });
-
-  const deleteMutation = useMutation({
-    mutationKey: ["items"],
-    mutationFn: deleteItem,
-  });
+  const createMutation = useCreateItem();
+  const updateMutation = useUpdateItem();
+  const deleteMutation = useDeleteItem();
 
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
-  const form = useForm<ItemSchema>({
+  const form = useForm<ItemInput>({
     resolver: zodResolver(itemSchema),
     defaultValues: {
-      id: "",
+      item_id: "",
       sku: "",
       title: "",
       type_id: "",
@@ -153,10 +141,18 @@ export default function Page() {
       description: "",
       origin_country_code: "",
       quantity: 0,
-      alcohol_volume: "0",
-      volume: "0",
-      volume_unit: "ml",
-      price: "0",
+      alcohol_volume: {
+        amount: "0",
+        unit: "%",
+      },
+      volume: {
+        amount: "0",
+        unit: "ml",
+      },
+      price: {
+        amount: "0",
+        currency: "€",
+      },
     },
   });
 
@@ -171,12 +167,13 @@ export default function Page() {
     });
   };
 
-  const handleSubmit = async (item: ItemSchema) => {
+  const handleSubmit = async (item: ItemInput) => {
     setIsDetailOpen(false);
 
+    console.log("Submitting...");
     if (selectedItem) {
       try {
-        await updateMutation.mutateAsync(item);
+        await updateMutation.mutateAsync({ id: item.item_id, body: item });
         toast({
           title: "Updated 🍷",
           description: `Item '${item.title}' has been updated successfully.`,
@@ -197,16 +194,24 @@ export default function Page() {
     }
   };
 
+  const handleErrors = (errors: object) => {
+    console.log(errors);
+  };
+
   const handleDelete = async () => {
     if (!selectedItem) return;
     setIsDetailOpen(false);
     setIsDeleteDialogOpen(false);
     try {
-      await deleteMutation.mutateAsync(selectedItem.id);
+      await deleteMutation.mutateAsync(selectedItem.item_id);
       toast({
         title: "Deleted 🗿",
         description: `Item '${selectedItem.title}' has been deleted successfully.`,
       });
+
+      if (paging && pageNumber >= paging.total_pages) {
+        setPageNumber(pageNumber - 1);
+      }
     } catch (err) {
       handleServiceError(err);
     }
@@ -282,7 +287,7 @@ export default function Page() {
               {isSuccess &&
                 content?.items?.map((item) => (
                   <TableRow
-                    key={item.id}
+                    key={item.item_id}
                     onClick={() => {
                       setSelectedItem(item);
                       form.reset(item, { keepDefaultValues: true });
@@ -387,7 +392,7 @@ export default function Page() {
           </SheetHeader>
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(handleSubmit)}
+              onSubmit={form.handleSubmit(handleSubmit, handleErrors)}
               className="mt-4 space-y-4"
               noValidate
             >
@@ -476,7 +481,7 @@ export default function Page() {
                 />
                 <FormField
                   control={form.control}
-                  name="price"
+                  name="price.amount"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Price (€ / pcs.)</FormLabel>
@@ -507,7 +512,7 @@ export default function Page() {
               <div className="flex flex-row gap-2">
                 <FormField
                   control={form.control}
-                  name="volume"
+                  name="volume.amount"
                   render={({ field }) => (
                     <FormItem className="grow">
                       <FormLabel>Volume</FormLabel>
@@ -520,7 +525,7 @@ export default function Page() {
                 />
                 <FormField
                   control={form.control}
-                  name="volume_unit"
+                  name="volume.unit"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Unit</FormLabel>
@@ -547,7 +552,7 @@ export default function Page() {
               </div>
               <FormField
                 control={form.control}
-                name="alcohol_volume"
+                name="alcohol_volume.amount"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Alcohol Volume (%)</FormLabel>

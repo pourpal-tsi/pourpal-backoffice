@@ -1,18 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
 import { ComboBox, ComboBoxProps } from "@/components/ui/combobox";
-import { getItemBrands } from "@/services/item-brands";
+import { useItemBrands } from "@/features/item-brands/api/get";
 
 export interface BrandComboBoxProps
   extends Omit<ComboBoxProps, "items" | "loading" | "disabled"> {}
 
 export default function BrandComboBox(props: BrandComboBoxProps) {
-  const { data, isLoading } = useQuery({
-    queryKey: ["brands"],
-    queryFn: getItemBrands,
-  });
+  const { data, isLoading } = useItemBrands();
 
   const items =
-    data?.map(({ brand_id, brand }) => ({
+    data?.brands?.map(({ brand_id, brand }) => ({
       value: brand_id,
       label: brand,
     })) ?? [];

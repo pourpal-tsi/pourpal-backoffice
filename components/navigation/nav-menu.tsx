@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/cn";
+import { cn } from "@/utils/cn";
 import {
   Gift,
   LayoutDashboard,
