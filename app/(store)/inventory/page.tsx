@@ -170,7 +170,6 @@ export default function Page() {
   const handleSubmit = async (item: ItemInput) => {
     setIsDetailOpen(false);
 
-    console.log("Submitting...");
     if (selectedItem) {
       try {
         await updateMutation.mutateAsync({ id: item.item_id, body: item });
@@ -192,10 +191,6 @@ export default function Page() {
         handleServiceError(err);
       }
     }
-  };
-
-  const handleErrors = (errors: object) => {
-    console.log(errors);
   };
 
   const handleDelete = async () => {
@@ -392,7 +387,7 @@ export default function Page() {
           </SheetHeader>
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(handleSubmit, handleErrors)}
+              onSubmit={form.handleSubmit(handleSubmit)}
               className="mt-4 space-y-4"
               noValidate
             >
