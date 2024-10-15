@@ -23,25 +23,25 @@ export default function NavMenu({ onNavigate, className }: NavMenuProps) {
       <ul className="space-y-1">
         {/* ANALYTICS SECTION */}
         <NavLabel>Analytics</NavLabel>
-        <NavEntry href="/dashboard" onClick={onNavigate}>
+        <NavEntry href="/store/dashboard" onClick={onNavigate}>
           <LayoutDashboard className="mr-2 size-4" /> Dashboard
         </NavEntry>
 
-        {/* STORE SECTION */}
-        <NavLabel>Store</NavLabel>
-        <NavEntry href="/inventory" onClick={onNavigate}>
+        {/* MANAGEMENT SECTION */}
+        <NavLabel>Management</NavLabel>
+        <NavEntry href="/store/inventory" onClick={onNavigate}>
           <Package className="mr-2 size-4" /> Inventory
         </NavEntry>
-        <NavEntry href="/promotions" onClick={onNavigate}>
+        <NavEntry href="/store/promotions" onClick={onNavigate}>
           <Gift className="mr-2 size-4" /> Promotions
         </NavEntry>
 
         {/* HISTORY SECTION */}
         <NavLabel>History</NavLabel>
-        <NavEntry href="/orders" onClick={onNavigate}>
+        <NavEntry href="/store/orders" onClick={onNavigate}>
           <ShoppingCart className="mr-2 size-4" /> Orders
         </NavEntry>
-        <NavEntry href="/payments" onClick={onNavigate}>
+        <NavEntry href="/store/payments" onClick={onNavigate}>
           <Wallet className="mr-2 size-4" /> Payments
         </NavEntry>
       </ul>

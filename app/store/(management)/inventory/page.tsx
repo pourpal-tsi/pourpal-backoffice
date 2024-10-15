@@ -305,9 +305,7 @@ export default function Page() {
           <div className="flex w-full flex-col-reverse items-center justify-end gap-4 py-3 sm:flex-row sm:gap-10">
             <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
               <div className="flex items-center space-x-2">
-                <p className="whitespace-nowrap text-sm font-medium">
-                  Rows per page
-                </p>
+                <p className="whitespace-nowrap text-sm">Rows per page</p>
                 <Select
                   value={String(pageSize)}
                   onValueChange={(value) =>
@@ -329,7 +327,7 @@ export default function Page() {
                 </Select>
               </div>
             </div>
-            <div className="flex items-center justify-center text-sm font-medium">
+            <div className="flex items-center justify-center text-sm">
               Page {paging?.page_number} of {paging?.total_pages}
             </div>
             <div className="flex items-center space-x-2">

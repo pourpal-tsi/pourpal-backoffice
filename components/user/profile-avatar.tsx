@@ -1,5 +1,7 @@
 "use client";
 
+import { logout } from "@/features/auth/api/logout";
+import { useRouter } from "next/navigation";
 import { LogOut, Settings, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -12,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function ProfileAvatar() {
+  const router = useRouter();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -32,7 +35,7 @@ export default function ProfileAvatar() {
           <span>Settings</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => logout().then(() => router.push("/"))}>
           <LogOut className="mr-2 size-4" />
           <span>Logout</span>
         </DropdownMenuItem>
