@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AuthenticationResponse } from "@/types/auth";
-import { createSessionCookies } from "@/lib/auth";
+import { createSessionCookie } from "@/lib/auth";
 import { cookies } from "next/headers";
 
 export async function POST(request: NextRequest) {
@@ -15,13 +15,9 @@ export async function POST(request: NextRequest) {
 
   if (response.ok) {
     const data = (await response.json()) as AuthenticationResponse;
-    const { accessTokenCookie, refreshTokenCookie } =
-      createSessionCookies(data);
-
+    const accessTokenCookie = createSessionCookie(data);
     cookies().set(accessTokenCookie);
-    cookies().set(refreshTokenCookie);
-
-    return NextResponse.json({});
+    return NextResponse.json({ status: 200 });
   }
 
   return response;

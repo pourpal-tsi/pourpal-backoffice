@@ -2,12 +2,12 @@
 
 import { ReactNode } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ColorSchemeProvider } from "@/components/color-scheme/color-scheme-provider";
 import {
   QueryClientProvider,
   QueryClient,
   MutationCache,
 } from "@tanstack/react-query";
-import { ColorSchemeProvider } from "@/components/color-scheme/color-scheme-provider";
 
 const client = new QueryClient({
   mutationCache: new MutationCache({
