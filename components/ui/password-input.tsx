@@ -21,7 +21,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
           type={showPassword ? "text" : "password"}
           ref={ref}
         />
-        <span className="absolute right-1 top-[7px] cursor-pointer select-none">
+        <span className="absolute right-3 top-[7px] cursor-pointer select-none">
           {showPassword ? (
             <EyeIcon onClick={() => setShowPassword(false)} />
           ) : (
