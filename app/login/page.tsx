@@ -43,7 +43,7 @@ export default function Page() {
             onSuccess={() => router.push("/store/inventory")}
           />
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex justify-center">
           <small>
             Don&apos;t have an account?{" "}
             <Link
