@@ -242,7 +242,7 @@ export default function Page() {
 
         {/* INVENTORY TABLE */}
         <div className="overflow-auto rounded-md border">
-          <Table className="table-fixed">
+          <Table className="table-fixed bg-background">
             <TableHeader>
               <TableRow>
                 <TableHead>SKU</TableHead>

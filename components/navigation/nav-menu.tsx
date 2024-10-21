@@ -5,11 +5,12 @@ import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/utils/cn";
 import {
-  Gift,
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Wallet,
+  LayoutDashboardIcon,
+  PackageIcon,
+  ShoppingCartIcon,
+  StoreIcon,
+  WalletIcon,
+  WineIcon,
 } from "lucide-react";
 
 export interface NavMenuProps {
@@ -24,25 +25,28 @@ export default function NavMenu({ onNavigate, className }: NavMenuProps) {
         {/* ANALYTICS SECTION */}
         <NavLabel>Analytics</NavLabel>
         <NavEntry href="/store/dashboard" onClick={onNavigate}>
-          <LayoutDashboard className="mr-2 size-4" /> Dashboard
+          <LayoutDashboardIcon className="mr-2 size-4" /> Dashboard
         </NavEntry>
 
         {/* MANAGEMENT SECTION */}
         <NavLabel>Management</NavLabel>
         <NavEntry href="/store/inventory" onClick={onNavigate}>
-          <Package className="mr-2 size-4" /> Inventory
+          <PackageIcon className="mr-2 size-4" /> Inventory
         </NavEntry>
-        <NavEntry href="/store/promotions" onClick={onNavigate}>
-          <Gift className="mr-2 size-4" /> Promotions
+        <NavEntry href="/store/item-brands" onClick={onNavigate}>
+          <StoreIcon className="mr-2 size-4" /> Brands
+        </NavEntry>
+        <NavEntry href="/store/item-types" onClick={onNavigate}>
+          <WineIcon className="mr-2 size-4" /> Types
         </NavEntry>
 
-        {/* HISTORY SECTION */}
-        <NavLabel>History</NavLabel>
+        {/* TRANSACTIONS SECTION */}
+        <NavLabel>Transactions</NavLabel>
         <NavEntry href="/store/orders" onClick={onNavigate}>
-          <ShoppingCart className="mr-2 size-4" /> Orders
+          <ShoppingCartIcon className="mr-2 size-4" /> Orders
         </NavEntry>
         <NavEntry href="/store/payments" onClick={onNavigate}>
-          <Wallet className="mr-2 size-4" /> Payments
+          <WalletIcon className="mr-2 size-4" /> Payments
         </NavEntry>
       </ul>
     </nav>
