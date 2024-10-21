@@ -92,7 +92,7 @@ export default function Page() {
 
   const [pageSize, setPageSize] = useQueryState(
     "page_size",
-    parseAsNumberLiteral(pageSizeOptions).withDefault(10),
+    parseAsNumberLiteral(pageSizeOptions).withDefault(20),
   );
   const [pageNumber, setPageNumber] = useQueryState(
     "page_number",
@@ -106,7 +106,6 @@ export default function Page() {
   const {
     data: content,
     isLoading,
-    isSuccess,
     isError,
   } = useItems({
     search,
@@ -117,6 +116,7 @@ export default function Page() {
     },
   });
 
+  const items = content?.items ?? [];
   const paging = content?.paging;
   const hasPages = paging && paging.total_pages > 0;
 
@@ -252,8 +252,8 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading &&
-                [...Array(5)].map((_, key) => (
+              {isLoading ? (
+                [...Array(10)].map((_, key) => (
                   <TableRow key={key}>
                     <TableCell>
                       <Skeleton className="h-5 max-w-[200px] bg-zinc-200 dark:bg-zinc-700" />
@@ -268,8 +268,8 @@ export default function Page() {
                       <Skeleton className="h-5 max-w-[200px] bg-zinc-200 dark:bg-zinc-700" />
                     </TableCell>
                   </TableRow>
-                ))}
-              {isError && (
+                ))
+              ) : isError ? (
                 <TableRow>
                   <TableCell
                     colSpan={4}
@@ -278,9 +278,17 @@ export default function Page() {
                     Couldn&apos;t fetch items, please try again later. ☕
                   </TableCell>
                 </TableRow>
-              )}
-              {isSuccess &&
-                content?.items?.map((item) => (
+              ) : items.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    className="text-center text-muted-foreground"
+                  >
+                    There aren&apos;t any items to show here... yet. 😉
+                  </TableCell>
+                </TableRow>
+              ) : (
+                items.map((item) => (
                   <TableRow
                     key={item.item_id}
                     onClick={() => {
@@ -297,7 +305,8 @@ export default function Page() {
                     </TableCell>
                     <TableCell className="truncate">{item.quantity}</TableCell>
                   </TableRow>
-                ))}
+                ))
+              )}
             </TableBody>
           </Table>
         </div>

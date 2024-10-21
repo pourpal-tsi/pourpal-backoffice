@@ -145,7 +145,7 @@ function BrandTable({
                 colSpan={4}
                 className="text-center text-muted-foreground"
               >
-                There aren&apos;t any brands to show you... yet. 😉
+                There aren&apos;t any brands to show here... yet. 😉
               </TableCell>
             </TableRow>
           ) : (
