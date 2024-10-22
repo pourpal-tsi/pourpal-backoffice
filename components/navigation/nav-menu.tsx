@@ -9,6 +9,7 @@ import {
   PackageIcon,
   ShoppingCartIcon,
   StoreIcon,
+  UserRoundPlusIcon,
   WalletIcon,
   WineIcon,
 } from "lucide-react";
@@ -47,6 +48,12 @@ export default function NavMenu({ onNavigate, className }: NavMenuProps) {
         </NavEntry>
         <NavEntry href="/store/payments" onClick={onNavigate}>
           <WalletIcon className="mr-2 size-4" /> Payments
+        </NavEntry>
+
+        {/* USERS SECTION */}
+        <NavLabel>Users</NavLabel>
+        <NavEntry href="/store/register" onClick={onNavigate}>
+          <UserRoundPlusIcon className="mr-2 size-4" /> Registration
         </NavEntry>
       </ul>
     </nav>

@@ -5,7 +5,7 @@ import { AuthenticationResponse } from "@/types/auth";
 import api from "@/config/api";
 
 export const loginSchema = z.object({
-  email: z.string().trim().email(),
+  email: z.string().trim().min(1, "Required").email(),
   password: z.string().trim().min(1, "Required"),
 });
 
