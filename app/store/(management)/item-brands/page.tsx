@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { RestClientError } from "@/lib/api";
 
 import { useItemBrands } from "@/features/item-brands/api/get";
 import { useCreateItemBrand } from "@/features/item-brands/api/create";
@@ -62,13 +63,29 @@ function BrandField() {
   const handleCreate = async () => {
     if (!isAllowed || isPending) return;
 
-    await createItemBrand({ brand });
-    toast({
-      title: "Created 🥳",
-      description: `Brand '${brand}' has been added successfully.`,
-    });
+    try {
+      await createItemBrand({ brand });
+      toast({
+        title: "Created 🥳",
+        description: `Brand '${brand}' has been added successfully.`,
+      });
 
-    setValue("");
+      setValue("");
+    } catch (e) {
+      if (e instanceof RestClientError && e.response.status == 409) {
+        toast({
+          title: "Duplicate 💀",
+          description: `Brand '${brand}' already exists, please use another name.`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Failed 💀",
+          description: `Something went wrong. Please, try again later.`,
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   return (
@@ -177,11 +194,27 @@ function Brand({ brand: { brand_id, brand } }: { brand: ItemBrand }) {
     const newBrandIsEmpty = newBrand.length == 0;
     if (brand == newBrand || newBrandIsEmpty) return;
 
-    await updateItemBrand({ id: brand_id, body: { brand: newBrand } });
-    toast({
-      title: "Updated 🍷",
-      description: `Brand '${brand}' has been updated successfully.`,
-    });
+    try {
+      await updateItemBrand({ id: brand_id, body: { brand: newBrand } });
+      toast({
+        title: "Updated 🍷",
+        description: `Brand '${brand}' has been updated successfully.`,
+      });
+    } catch (e) {
+      if (e instanceof RestClientError && e.response.status == 409) {
+        toast({
+          title: "Duplicate 💀",
+          description: `Brand '${newBrand}' already exists, please use another name.`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Failed 💀",
+          description: `Something went wrong. Please, try again later.`,
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   return (
