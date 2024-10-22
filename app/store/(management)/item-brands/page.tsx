@@ -176,6 +176,7 @@ function BrandTable({
 
 function Brand({ brand: { brand_id, brand } }: { brand: ItemBrand }) {
   const [value, setValue] = useState(brand);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const { toast } = useToast();
   const { mutateAsync: deleteItemBrand } = useDeleteItemBrand();
@@ -192,7 +193,12 @@ function Brand({ brand: { brand_id, brand } }: { brand: ItemBrand }) {
   const handleUpdate = async () => {
     const newBrand = value.trim();
     const newBrandIsEmpty = newBrand.length == 0;
-    if (brand == newBrand || newBrandIsEmpty) return;
+    if (newBrandIsEmpty) {
+      setIsDeleteOpen(true);
+      return;
+    }
+
+    if (brand == newBrand) return;
 
     try {
       await updateItemBrand({ id: brand_id, body: { brand: newBrand } });
@@ -232,7 +238,7 @@ function Brand({ brand: { brand_id, brand } }: { brand: ItemBrand }) {
           }}
         />
         <div className="absolute inset-y-0 right-0 mr-2 flex items-center">
-          <AlertDialog>
+          <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
             <AlertDialogTrigger asChild>
               <Button variant="link" size="icon">
                 <Trash2Icon className="size-5 text-red-700" />
@@ -249,7 +255,9 @@ function Brand({ brand: { brand_id, brand } }: { brand: ItemBrand }) {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel onClick={() => setValue(brand)}>
+                  Cancel
+                </AlertDialogCancel>
                 <AlertDialogAction onClick={handleDelete}>
                   Continue
                 </AlertDialogAction>
