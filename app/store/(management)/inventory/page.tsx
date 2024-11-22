@@ -100,7 +100,7 @@ export default function Page() {
   );
 
   useEffect(() => {
-    setPageNumber(1);
+    void setPageNumber(1);
   }, [setPageNumber, search, pageSize]);
 
   const {
@@ -126,7 +126,6 @@ export default function Page() {
 
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
   const form = useForm<ItemInput>({

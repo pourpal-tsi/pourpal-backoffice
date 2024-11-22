@@ -60,3 +60,33 @@ export function useItems({
     ...queryConfig,
   });
 }
+
+export interface GetItemParams {
+  id: string;
+}
+
+export interface GetItemResponse {
+  item: Item;
+}
+
+export async function getItem({ id }: GetItemParams) {
+  return api.get<GetItemResponse>(`/items/${id}`);
+}
+
+export const getItemQueryOptions = ({ id }: GetItemParams) => {
+  return queryOptions({
+    queryKey: [`items`, id],
+    queryFn: () => getItem({ id }),
+  });
+};
+
+export interface UseItemOptions extends GetItemParams {
+  queryConfig?: QueryConfig<typeof getItemQueryOptions>;
+}
+
+export function useItem({ id, queryConfig }: UseItemOptions) {
+  return useQuery({
+    ...getItemQueryOptions({ id }),
+    ...queryConfig,
+  });
+}

@@ -5,12 +5,10 @@ import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/utils/cn";
 import {
-  LayoutDashboardIcon,
   PackageIcon,
   ShoppingCartIcon,
   StoreIcon,
   UserRoundPlusIcon,
-  WalletIcon,
   WineIcon,
 } from "lucide-react";
 
@@ -23,12 +21,6 @@ export default function NavMenu({ onNavigate, className }: NavMenuProps) {
   return (
     <nav className={className}>
       <ul className="space-y-1">
-        {/* ANALYTICS SECTION */}
-        <NavLabel>Analytics</NavLabel>
-        <NavEntry href="/store/dashboard" onClick={onNavigate}>
-          <LayoutDashboardIcon className="mr-2 size-4" /> Dashboard
-        </NavEntry>
-
         {/* MANAGEMENT SECTION */}
         <NavLabel>Management</NavLabel>
         <NavEntry href="/store/inventory" onClick={onNavigate}>
@@ -45,9 +37,6 @@ export default function NavMenu({ onNavigate, className }: NavMenuProps) {
         <NavLabel>Transactions</NavLabel>
         <NavEntry href="/store/orders" onClick={onNavigate}>
           <ShoppingCartIcon className="mr-2 size-4" /> Orders
-        </NavEntry>
-        <NavEntry href="/store/payments" onClick={onNavigate}>
-          <WalletIcon className="mr-2 size-4" /> Payments
         </NavEntry>
 
         {/* USERS SECTION */}
