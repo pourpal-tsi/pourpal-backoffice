@@ -1,6 +1,6 @@
 # PourPal Backoffice
 
-The admin backoffice of the PourPal software engineering group project at TSI, 2024.
+The admin backoffice for PourPal, a beverage e-commerce platform developed as a software engineering group project at TSI, 2024.
 
 ## Getting Started
 
